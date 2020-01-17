@@ -36,4 +36,4 @@ UNICODE_ENABLE = no         # Unicode
 AUDIO_ENABLE = no           # Audio output on port C6
 FAUXCLICKY_ENABLE = no      # Use buzzer to emulate clicky switches
 BLUETOOTH_ENABLE = no       # Enable Bluetooth with Adafruit EZ-Key HID
-BLUETOOTH = AdafruitBLE		# Enable Bluetooth with Adafruit Bluefruit SPI friend.
+BLUETOOTH = AdafruitBLE     # Enable Bluetooth with Adafruit Bluefruit SPI friend.

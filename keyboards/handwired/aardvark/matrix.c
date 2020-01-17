@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "lufa.h"
 #endif
 #include "suspend.h"
-#if defined(BLUETOOTH) && BLUETOOTH  == AdafruitBLE
+#if defined(BLUETOOTH) && BLUETOOTH == AdafruitBLE
 #include "adafruit_ble.h"
 #endif
 #include "LUFA/Drivers/Peripheral/ADC.h"
@@ -51,7 +51,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // row2: A4 - PF1
 // row3: A5 - PF0
 // col0-15:   sx1509
-static const uint8_t row_pins[MATRIX_ROWS] = {F7, F6, F5, F4, F1};
+//static const uint8_t row_pins[MATRIX_ROWS] = {F7, F6, F5, F4, F1};
+static const uint8_t row_pins[MATRIX_ROWS] = MATRIX_ROW_PINS;
 #if DEBOUNCING_DELAY > 0
 static bool debouncing;
 static matrix_row_t matrix_debouncing[MATRIX_ROWS];
@@ -97,7 +98,7 @@ static void unselect_rows(void) {
 // }
 
 void matrix_power_down(void) {
-#if defined(BLUETOOTH) && BLUETOOTH  == AdafruitBLE && defined(AdafruitBlePowerPin)
+#if defined(BLUETOOTH) && BLUETOOTH == AdafruitBLE && defined(AdafruitBlePowerPin)
   adafruit_ble_power_enable(false);
 #elif defined(BLUETOOTH) && ADAFRUIT_BLE_ENABLE_MODE_LEDS
   adafruit_ble_set_mode_leds(false);
