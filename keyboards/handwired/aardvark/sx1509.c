@@ -19,16 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "pincontrol.h"
 #include "debug.h"
 
-// Maybe?
+// // Maybe?
 // #define USE_LUFA_TWI
-
+//
+// #include "i2c_master.h"
+// // #ifdef USE_LUFA_TWI
+// #include "lib/lufa/LUFA/Drivers/Peripheral/TWI.h"
+// #include "lib/lufa/LUFA/Drivers/Peripheral/AVR8/TWI_AVR8.h"
+// #else
 #include "i2c_master.h"
-#ifdef USE_LUFA_TWI
-#include "lib/lufa/LUFA/Drivers/Peripheral/TWI.h"
-#include "lib/lufa/LUFA/Drivers/Peripheral/AVR8/TWI_AVR8.h"
-#else
-#include "i2c_master.h"
-#endif
+// #endif
 
 #include <inttypes.h>
 #include <compat/twi.h>
@@ -65,15 +65,15 @@ static const char *twi_err_str(uint8_t res) {
 #endif
 
 static inline bool _set_register(enum sx1509_registers reg, unsigned char val) {
-#ifdef USE_LUFA_TWI
-  uint8_t addr = reg;
-  uint8_t result = TWI_WritePacket(i2cAddress << 1, i2cTimeout, &addr, sizeof(addr),
-                                   &val, sizeof(val));
-  if (result) {
-    xprintf("mcp: set_register %d = %d failed: %s\n", reg, val, twi_err_str(result));
-  }
-  return result == 0;
-#else
+// #ifdef USE_LUFA_TWI
+//   uint8_t addr = reg;
+//   uint8_t result = TWI_WritePacket(i2cAddress << 1, i2cTimeout, &addr, sizeof(addr),
+//                                    &val, sizeof(val));
+//   if (result) {
+//     xprintf("mcp: set_register %d = %d failed: %s\n", reg, val, twi_err_str(result));
+//   }
+//   return result == 0;
+// #else
   bool success = false;
   if (i2c_start(i2cAddress, i2cTimeout)) {
   // if (i2c_start(i2cAddress)) {
@@ -95,7 +95,7 @@ static inline bool _set_register(enum sx1509_registers reg, unsigned char val) {
 done:
   i2c_stop();
   return success;
-#endif
+// #endif
 }
 #define set_reg(reg, val) if (!_set_register(reg, val)) { goto done; }
 
@@ -143,19 +143,19 @@ uint16_t sx1509_read(void) {
     return 0;
   }
 
-#ifdef USE_LUFA_TWI
-  uint8_t addr = DataB;
-  uint8_t buf[2];
-  uint8_t result = TWI_ReadPacket(i2cAddress << 1, i2cTimeout, &addr,
-                                  sizeof(addr), buf, sizeof(buf));
-  if (result) {
-    xprintf("mcp: read pins failed: %s\n", twi_err_str(result));
-    initialized = false;
-    return 0;
-  }
-  pins = (buf[0] << 8) | buf[1];
-  return ~pins;
-#else
+// #ifdef USE_LUFA_TWI
+//   uint8_t addr = DataB;
+//   uint8_t buf[2];
+//   uint8_t result = TWI_ReadPacket(i2cAddress << 1, i2cTimeout, &addr,
+//                                   sizeof(addr), buf, sizeof(buf));
+//   if (result) {
+//     xprintf("mcp: read pins failed: %s\n", twi_err_str(result));
+//     initialized = false;
+//     return 0;
+//   }
+//   pins = (buf[0] << 8) | buf[1];
+//   return ~pins;
+// #else
 
   if (i2c_start(i2cAddress, i2cTimeout)) {
   // if (i2c_start(i2cAddress)) {
@@ -187,55 +187,55 @@ done:
     dprint("failed to read mcp, will re-init\n");
     return 0;
   }
-#endif
+// #endif
 
   return ~pins;
 }
 
-unsigned char i2c_rep_start(unsigned char address)
-{
-    return i2c_start( address, i2cTimeout);
-
-}/* i2c_rep_start */
-
-void i2c_start_wait(unsigned char address)
-{
-    uint8_t   twst;
-
-
-    while ( 1 )
-    {
-	    // send START condition
-	    TWCR = (1<<TWINT) | (1<<TWSTA) | (1<<TWEN);
-
-    	// wait until transmission completed
-    	while(!(TWCR & (1<<TWINT)));
-
-    	// check value of TWI Status Register. Mask prescaler bits.
-    	twst = TW_STATUS & 0xF8;
-    	if ( (twst != TW_START) && (twst != TW_REP_START)) continue;
-
-    	// send device address
-    	TWDR = address;
-    	TWCR = (1<<TWINT) | (1<<TWEN);
-
-    	// wail until transmission completed
-    	while(!(TWCR & (1<<TWINT)));
-
-    	// check value of TWI Status Register. Mask prescaler bits.
-    	twst = TW_STATUS & 0xF8;
-    	if ( (twst == TW_MT_SLA_NACK )||(twst ==TW_MR_DATA_NACK) )
-    	{
-    	    /* device busy, send stop condition to terminate write operation */
-	        TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWSTO);
-
-	        // wait until stop condition is executed and bus released
-	        while(TWCR & (1<<TWSTO));
-
-    	    continue;
-    	}
-    	//if( twst != TW_MT_SLA_ACK) return 1;
-    	break;
-     }
-
-}/* i2c_start_wait */
+// unsigned char i2c_rep_start(unsigned char address)
+// {
+//     return i2c_start( address, i2cTimeout);
+//
+// }/* i2c_rep_start */
+//
+// void i2c_start_wait(unsigned char address)
+// {
+//     uint8_t   twst;
+//
+//
+//     while ( 1 )
+//     {
+// 	    // send START condition
+// 	    TWCR = (1<<TWINT) | (1<<TWSTA) | (1<<TWEN);
+//
+//     	// wait until transmission completed
+//     	while(!(TWCR & (1<<TWINT)));
+//
+//     	// check value of TWI Status Register. Mask prescaler bits.
+//     	twst = TW_STATUS & 0xF8;
+//     	if ( (twst != TW_START) && (twst != TW_REP_START)) continue;
+//
+//     	// send device address
+//     	TWDR = address;
+//     	TWCR = (1<<TWINT) | (1<<TWEN);
+//
+//     	// wail until transmission completed
+//     	while(!(TWCR & (1<<TWINT)));
+//
+//     	// check value of TWI Status Register. Mask prescaler bits.
+//     	twst = TW_STATUS & 0xF8;
+//     	if ( (twst == TW_MT_SLA_NACK )||(twst ==TW_MR_DATA_NACK) )
+//     	{
+//     	    /* device busy, send stop condition to terminate write operation */
+// 	        TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWSTO);
+//
+// 	        // wait until stop condition is executed and bus released
+// 	        while(TWCR & (1<<TWSTO));
+//
+//     	    continue;
+//     	}
+//     	//if( twst != TW_MT_SLA_ACK) return 1;
+//     	break;
+//      }
+//
+// }/* i2c_start_wait */
