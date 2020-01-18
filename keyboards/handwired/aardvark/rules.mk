@@ -16,9 +16,11 @@ BOOTLOADER = caterina       # I'm using an Adafruit Feather 32u4 Basic Proto
                             # Maybe your hardware needs another bootloader?
 
 CUSTOM_MATRIX = yes         # We have a custom matrix
-SRC = matrix.c sx1509.c \
-	drivers/avr/i2c_master.c \
-	lib/lufa/LUFA/Drivers/Peripheral/AVR8/TWI_AVR8.c    # Adding support files for that
+SRC += matrix.c sx1509.c
+QUANTUM_LIB_SRC += drivers/avr/i2c_master.c
+# SRC = matrix.c sx1509.c
+# 	drivers/avr/i2c_master.c
+# 	lib/lufa/LUFA/Drivers/Peripheral/AVR8/TWI_AVR8.c    # Adding support files for that
 
 # Build Options --- change yes to no to disable
 # ###################

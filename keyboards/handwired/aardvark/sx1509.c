@@ -20,15 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "debug.h"
 
 // Maybe?
-#define USE_LUFA_TWI
+// #define USE_LUFA_TWI
 
-#include <i2c_master.h>
+#include "i2c_master.h"
 #ifdef USE_LUFA_TWI
 #include "lib/lufa/LUFA/Drivers/Peripheral/TWI.h"
 #include "lib/lufa/LUFA/Drivers/Peripheral/AVR8/TWI_AVR8.h"
 #else
 #include "i2c_master.h"
 #endif
+
+#include <inttypes.h>
+#include <compat/twi.h>
 
 // Controls the SX1509 16 pin I/O expander
 static bool initialized;
@@ -84,8 +87,8 @@ static inline bool _set_register(enum sx1509_registers reg, unsigned char val) {
     goto done;
   }
 
-  // success = i2c_write(val, i2cTimeout) == 0;
-  success = i2c_write(val) == 0;
+  success = i2c_write(val, i2cTimeout) == 0;
+  // success = i2c_write(val) == 0;
   if (!success) {
     xprintf("mcp: write reg addr %d val = %d failed\n", reg, val);
   }
@@ -173,9 +176,9 @@ uint16_t sx1509_read(void) {
   }
 
   // Read PortB
-  pins = i2c_read_ack() << 8;
+  pins = i2c_read_ack(i2cTimeout) << 8;
   // Read PortA
-  pins |= i2c_read_nack();
+  pins |= i2c_read_nack(i2cTimeout);
 
 done:
   i2c_stop();
