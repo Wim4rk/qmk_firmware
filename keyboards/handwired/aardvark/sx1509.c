@@ -72,14 +72,14 @@ static inline bool _set_register(enum sx1509_registers reg, unsigned char val) {
   return result == 0;
 #else
   bool success = false;
-  // if (i2c_start(i2cAddress, i2cTimeout)) {
-  if (i2c_start(i2cAddress)) {
+  if (i2c_start(i2cAddress, i2cTimeout)) {
+  // if (i2c_start(i2cAddress)) {
     xprintf("mcp: start_write failed\n");
     goto done;
   }
 
-  // if (i2c_write((unsigned char)reg, i2cTimeout)) {
-  if (i2c_write((unsigned char)reg)) {
+  if (i2c_write((unsigned char)reg, i2cTimeout)) {
+  // if (i2c_write((unsigned char)reg)) {
     xprintf("mcp: write reg addr %d failed\n", reg);
     goto done;
   }
@@ -154,20 +154,20 @@ uint16_t sx1509_read(void) {
   return ~pins;
 #else
 
-  // if (i2c_start(i2cAddress, i2cTimeout)) {
-  if (i2c_start(i2cAddress)) {
+  if (i2c_start(i2cAddress, i2cTimeout)) {
+  // if (i2c_start(i2cAddress)) {
     initialized = false;
     goto done;
   }
 
-  // if (i2c_write(DataB, i2cTimeout)) {
-  if (i2c_write(DataB)) {
+  if (i2c_write(DataB, i2cTimeout)) {
+  // if (i2c_write(DataB)) {
     initialized = false;
     goto done;
   }
 
-  // if (i2c_start(i2cAddress, i2cTimeout)) {
-  if (i2c_start(i2cAddress)) {
+  if (i2c_start(i2cAddress, i2cTimeout)) {
+  // if (i2c_start(i2cAddress)) {
     initialized = false;
     goto done;
   }
@@ -188,3 +188,51 @@ done:
 
   return ~pins;
 }
+
+unsigned char i2c_rep_start(unsigned char address)
+{
+    return i2c_start( address, i2cTimeout);
+
+}/* i2c_rep_start */
+
+void i2c_start_wait(unsigned char address)
+{
+    uint8_t   twst;
+
+
+    while ( 1 )
+    {
+	    // send START condition
+	    TWCR = (1<<TWINT) | (1<<TWSTA) | (1<<TWEN);
+
+    	// wait until transmission completed
+    	while(!(TWCR & (1<<TWINT)));
+
+    	// check value of TWI Status Register. Mask prescaler bits.
+    	twst = TW_STATUS & 0xF8;
+    	if ( (twst != TW_START) && (twst != TW_REP_START)) continue;
+
+    	// send device address
+    	TWDR = address;
+    	TWCR = (1<<TWINT) | (1<<TWEN);
+
+    	// wail until transmission completed
+    	while(!(TWCR & (1<<TWINT)));
+
+    	// check value of TWI Status Register. Mask prescaler bits.
+    	twst = TW_STATUS & 0xF8;
+    	if ( (twst == TW_MT_SLA_NACK )||(twst ==TW_MR_DATA_NACK) )
+    	{
+    	    /* device busy, send stop condition to terminate write operation */
+	        TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWSTO);
+
+	        // wait until stop condition is executed and bus released
+	        while(TWCR & (1<<TWSTO));
+
+    	    continue;
+    	}
+    	//if( twst != TW_MT_SLA_ACK) return 1;
+    	break;
+     }
+
+}/* i2c_start_wait */
