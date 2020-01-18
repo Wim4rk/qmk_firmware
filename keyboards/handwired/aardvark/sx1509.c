@@ -15,16 +15,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "config.h"
-// #include "pincontrol.h"
+#include <stdbool.h>
+#include "pincontrol.h"
 #include "debug.h"
 
+// Maybe?
+#define USE_LUFA_TWI
+
 #include <i2c_master.h>
-// #ifdef USE_LUFA_TWI
-// #include "lib/lufa/LUFA/Drivers/Peripheral/TWI.h"
-// #include "lib/lufa/LUFA/Drivers/Peripheral/AVR8/TWI_AVR8.h"
-// #else
-// #include "i2c_master.h"
-// #endif
+#ifdef USE_LUFA_TWI
+#include "lib/lufa/LUFA/Drivers/Peripheral/TWI.h"
+#include "lib/lufa/LUFA/Drivers/Peripheral/AVR8/TWI_AVR8.h"
+#else
+#include "i2c_master.h"
+#endif
 
 // Controls the SX1509 16 pin I/O expander
 static bool initialized;
