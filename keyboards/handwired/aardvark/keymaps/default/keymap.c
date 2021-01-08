@@ -1,5 +1,9 @@
 #include QMK_KEYBOARD_H
 
+/* Jag behöver ett macro som skickar shebanh för python,
+ * Lägg till ett sådant
+ */
+
 #include "aardvark.h"
 #include "action_layer.h"
 #include "pincontrol.h"
