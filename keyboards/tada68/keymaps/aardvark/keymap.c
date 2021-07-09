@@ -105,7 +105,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case SH_BANG:
             if (record->event.pressed) {
-                SEND_STRING("#!/usr/bin/env python3\n#! /|/ coding> UTF/8 /|/");
+                SEND_STRING("#!-usr-bin-env python3\n#! -|- coding> UTF-8 -|-");
             }
             break;
         case KC_ESC:
